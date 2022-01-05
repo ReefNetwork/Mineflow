@@ -270,7 +270,7 @@ class FlowItemForm {
     public function sendChangeName(Player $player, FlowItem $item, FlowItemContainer $container, string $type): void {
         (new CustomForm(Language::get("form.recipe.changeName.title", [$item->getName()])))
             ->setContents([
-                new Input("@form.recipe.changeName.content1", "", $item->getCustomName()),
+                new Input("@form.recipe.changeName.newName", "", $item->getCustomName()),
                 new CancelToggle()
             ])->onReceive(function (Player $player, array $data) use($item, $container, $type) {
                 if ($data[1]) {
