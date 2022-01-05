@@ -135,6 +135,14 @@ class CustomForm extends Form {
         return $this;
     }
 
+    public function insufficient(int $index): void {
+        $this->error([["@form.insufficient", $index]]);
+    }
+
+    public function error(array $errors = []): void {
+        $this->resend($errors);
+    }
+
     public function resend(array $errors = [], array $messages = [], array $responseOverrides = [], array $elementOverrides = []): void {
         if (empty($this->lastResponse) or !($this->lastResponse[0] instanceof Player) or !$this->lastResponse[0]->isOnline()) return;
 
