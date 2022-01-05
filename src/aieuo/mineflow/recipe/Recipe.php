@@ -14,6 +14,7 @@ use aieuo\mineflow\trigger\TriggerHolder;
 use aieuo\mineflow\trigger\Triggers;
 use aieuo\mineflow\utils\Language;
 use aieuo\mineflow\utils\Logger;
+use aieuo\mineflow\utils\Utils;
 use aieuo\mineflow\variable\DefaultVariables;
 use aieuo\mineflow\variable\DummyVariable;
 use aieuo\mineflow\variable\object\EventObjectVariable;
@@ -319,8 +320,8 @@ class Recipe implements \JsonSerializable, FlowItemContainer {
     }
 
     public function getFileName(string $baseDir): string {
-        $group = preg_replace("#[.¥:?<>|*\"]#u", "", $this->getGroup());
-        $name = preg_replace("#[.¥/:?<>|*\"]#u", "", $this->getName());
+        $group = Utils::getValidFileName($this->getGroup());
+        $name = Utils::getValidFileName($this->getName());
         if (!empty($group)) $baseDir .= $group."/";
         return $baseDir.$name.".json";
     }

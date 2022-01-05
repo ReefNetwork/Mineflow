@@ -52,8 +52,8 @@ class RecipeForm {
                 $group = $data[1];
 
                 $errors = [];
-                if (preg_match("#[.¥/:?<>|*\"]#u", preg_quote($name, "/@#~"))) $errors[] = ["@form.recipe.invalidName", 0];
-                if (preg_match("#[.¥:?<>|*\"]#u", preg_quote($group, "/@#~"))) $errors[] = ["@form.recipe.invalidName", 1];
+                if (!Utils::isValidFileName($name)) $errors[] = ["@form.recipe.invalidName", 0];
+                if (!Utils::isValidFileName($group)) $errors[] = ["@form.recipe.invalidName", 1];
                 if (!empty($errors)) {
                     $it->resend($errors);
                     return;
