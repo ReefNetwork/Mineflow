@@ -3,6 +3,8 @@
 namespace aieuo\mineflow\variable;
 
 use function array_merge;
+use function assert;
+use function is_subclass_of;
 
 /**
  * @template T of aieuo\mineflow\variable\Variable
@@ -26,6 +28,7 @@ class DummyVariable extends Variable {
      * @param string $description
      */
     public function __construct(private string $valueClass = "", private string $description = "") {
+        assert(is_subclass_of($this->valueClass, Variable::class));
     }
 
     public function getDescription(): string {
