@@ -9,6 +9,7 @@ use aieuo\mineflow\utils\Language;
 use pocketmine\form\Form as PMForm;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
+use SOFe\AwaitGenerator\Await;
 
 abstract class Form implements PMForm {
 
@@ -118,6 +119,12 @@ abstract class Form implements PMForm {
     public function show(Player $player): self {
         $player->sendForm($this);
         return $this;
+    }
+
+    public function showAwait(Player $player): \Generator {
+        $this->onReceive(yield);
+        $player->sendForm($this);
+        return yield Await::ONCE;
     }
 
     abstract public function jsonSerialize(): array;
