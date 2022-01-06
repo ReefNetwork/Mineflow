@@ -55,7 +55,7 @@ class AndScript extends FlowItem implements Condition, FlowItemContainer {
     public function loadSaveData(array $contents): FlowItem {
         foreach ($contents as $content) {
             $condition = FlowItem::loadEachSaveData($content);
-            $this->addItem($condition, FlowItemContainer::CONDITION);
+            $this->addCondition($condition);
         }
         return $this;
     }
@@ -73,6 +73,6 @@ class AndScript extends FlowItem implements Condition, FlowItemContainer {
         foreach ($this->getConditions() as $k => $condition) {
             $conditions[$k] = clone $condition;
         }
-        $this->setItems($conditions, FlowItemContainer::CONDITION);
+        $this->setConditions($conditions);
     }
 }
