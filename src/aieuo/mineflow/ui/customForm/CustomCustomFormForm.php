@@ -191,30 +191,30 @@ class CustomCustomFormForm {
 
                 switch (true) {
                     case $element instanceof Toggle:
-                        $element->setDefault($data[0]);
+                        $element->setDefaultIndex($data[0]);
                         break;
                     case $element instanceof NumberInput:
                         if (!($element instanceof NumberInputPlaceholder)) {
                             $element = new NumberInputPlaceholder(
-                                $element->getText(), $element->getPlaceholder(), $element->getDefault(),
+                                $element->getText(), $element->getPlaceholder(), $element->getDefaultIndex(),
                                 (string)$element->getMin(), (string)$element->getMax(), $element->getExcludes()
                             );
                         }
                         $element->setPlaceholder($data[0]);
-                        $element->setDefault($data[1]);
+                        $element->setDefaultIndex($data[1]);
                         $element->setRequired($data[2]);
                         $element->setMinStr($data[3] === "" ? null : $data[3]);
                         $element->setMaxStr($data[4] === "" ? null : $data[4]);
                         break;
                     case $element instanceof Input:
                         $element->setPlaceholder($data[0]);
-                        $element->setDefault($data[1]);
+                        $element->setDefaultIndex($data[1]);
                         $element->setRequired($data[2]);
                         break;
                     case $element instanceof Slider:
                         if (!($element instanceof SliderPlaceholder)) {
                             $element = new SliderPlaceholder(
-                                $element->getText(), (string)$element->getMin(), (string)$element->getMax(), (string)$element->getStep(), (string)$element->getDefault()
+                                $element->getText(), (string)$element->getMin(), (string)$element->getMax(), (string)$element->getStep(), (string)$element->getDefaultIndex()
                             );
                         }
                         $element->setMinStr($data[0]);

@@ -5,6 +5,7 @@ namespace aieuo\mineflow\formAPI\element;
 use aieuo\mineflow\formAPI\response\CustomFormResponse;
 use aieuo\mineflow\utils\Language;
 use pocketmine\player\Player;
+use function array_search;
 
 class Dropdown extends Element {
     protected string $type = self::ELEMENT_DROPDOWN;
@@ -35,13 +36,22 @@ class Dropdown extends Element {
         return $this->options;
     }
 
-    public function setDefault(int $default): self {
+    public function setDefaultIndex(int $default): self {
         $this->default = $default >= 0 ? $default : 0;
         return $this;
     }
 
-    public function getDefault(): int {
+    public function getDefaultIndex(): int {
         return $this->default;
+    }
+
+    public function setDefaultString(string $default): self {
+        $this->setDefaultIndex(array_search($default, $this->options, true));
+        return $this;
+    }
+
+    public function getDefaultString(): string {
+        return $this->options[$this->default];
     }
 
     public function onFormSubmit(CustomFormResponse $response, Player $player): void {

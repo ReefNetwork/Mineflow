@@ -207,8 +207,10 @@ class CustomForm extends Form {
 
     private function setDefaultsFromResponse(array $data, array $overwrites): self {
         foreach ($this->getContents() as $i => $content) {
-            if ($content instanceof Input or $content instanceof Slider or $content instanceof Dropdown or $content instanceof Toggle) {
+            if ($content instanceof Input or $content instanceof Slider or $content instanceof Toggle) {
                 $content->setDefault($overwrites[$i] ?? $data[$i]);
+            } elseif ($content instanceof Dropdown) {
+                $content->setDefaultIndex($overwrites[$i] ?? $data[$i]);
             }
         }
         return $this;
