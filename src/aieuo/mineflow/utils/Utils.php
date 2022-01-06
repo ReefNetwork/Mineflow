@@ -13,7 +13,7 @@ class Utils {
     }
 
     public static function getValidFileName(string $name): string {
-        return preg_replace("#[.¥/:?<>|*\"]#u", "", preg_quote($name, "/@#~"));
+        return preg_replace("#[.¥/:?<>|*\"]#u", "", $name);
     }
 
 }
