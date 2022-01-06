@@ -27,7 +27,6 @@ class GetEntity extends FlowItem {
     protected array $detailDefaultReplace = ["id", "result"];
 
     protected string $category = Category::ENTITY;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $entityId;
     private string $resultName;

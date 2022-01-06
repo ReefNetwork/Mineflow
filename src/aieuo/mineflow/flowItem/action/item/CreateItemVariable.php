@@ -25,7 +25,6 @@ class CreateItemVariable extends FlowItem {
     protected array $detailDefaultReplace = ["item", "id", "count", "name"];
 
     protected string $category = Category::ITEM;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $variableName;
     private string $itemId;

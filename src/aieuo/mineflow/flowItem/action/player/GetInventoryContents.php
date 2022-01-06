@@ -28,8 +28,6 @@ class GetInventoryContents extends FlowItem implements PlayerFlowItem {
 
     protected string $category = Category::PLAYER;
 
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
-
     private string $resultName;
 
     public function __construct(string $player = "", string $resultName = "inventory") {

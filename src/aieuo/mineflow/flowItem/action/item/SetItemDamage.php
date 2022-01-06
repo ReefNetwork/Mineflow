@@ -24,7 +24,6 @@ class SetItemDamage extends FlowItem implements ItemFlowItem {
     protected array $detailDefaultReplace = ["item", "damage"];
 
     protected string $category = Category::ITEM;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $damage;
 

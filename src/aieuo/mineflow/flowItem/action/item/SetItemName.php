@@ -23,7 +23,6 @@ class SetItemName extends FlowItem implements ItemFlowItem {
     protected array $detailDefaultReplace = ["item", "name"];
 
     protected string $category = Category::ITEM;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $itemName;
 

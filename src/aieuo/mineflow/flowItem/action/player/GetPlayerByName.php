@@ -22,7 +22,6 @@ class GetPlayerByName extends FlowItem {
     protected array $detailDefaultReplace = ["name", "result"];
 
     protected string $category = Category::PLAYER;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $playerName;
     private string $resultName;

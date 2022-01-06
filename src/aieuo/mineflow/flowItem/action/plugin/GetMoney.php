@@ -25,8 +25,6 @@ class GetMoney extends FlowItem {
 
     protected string $category = Category::PLUGIN;
 
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
-
     private string $playerName;
     private string $resultName;
 

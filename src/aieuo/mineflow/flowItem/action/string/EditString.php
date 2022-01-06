@@ -24,7 +24,6 @@ class EditString extends FlowItem {
     protected array $detailDefaultReplace = ["value1", "operator", "value2", "result"];
 
     protected string $category = Category::STRING;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     public const TYPE_JOIN = "join";
     public const TYPE_DELETE = "delete";

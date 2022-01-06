@@ -31,8 +31,6 @@ class GetEntitySidePosition extends FlowItem implements EntityFlowItem {
 
     protected string $category = Category::WORLD;
 
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
-
     private string $direction;
     private string $steps;
     private string $resultName;

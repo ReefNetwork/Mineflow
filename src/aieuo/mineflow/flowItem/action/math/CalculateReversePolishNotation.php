@@ -22,7 +22,6 @@ class CalculateReversePolishNotation extends FlowItem {
     protected array $detailDefaultReplace = ["formula", "result"];
 
     protected string $category = Category::MATH;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     private string $formula;
     private string $resultName;

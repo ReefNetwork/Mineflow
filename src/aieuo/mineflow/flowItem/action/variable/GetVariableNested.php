@@ -23,7 +23,6 @@ class GetVariableNested extends FlowItem {
     protected array $detailDefaultReplace = ["name", "result"];
 
     protected string $category = Category::VARIABLE;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $variableName;
     private string $resultName;

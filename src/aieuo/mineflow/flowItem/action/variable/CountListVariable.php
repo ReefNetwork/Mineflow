@@ -24,7 +24,6 @@ class CountListVariable extends FlowItem {
     protected array $detailDefaultReplace = ["name", "result"];
 
     protected string $category = Category::VARIABLE;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     private string $variableName;
     private string $resultName;

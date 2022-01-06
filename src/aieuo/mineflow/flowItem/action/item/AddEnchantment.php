@@ -28,7 +28,6 @@ class AddEnchantment extends FlowItem implements ItemFlowItem {
     protected array $detailDefaultReplace = ["item", "id", "world"];
 
     protected string $category = Category::ITEM;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $enchantId;
     private string $enchantLevel;

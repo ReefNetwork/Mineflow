@@ -18,7 +18,6 @@ abstract class TypeGetMathVariable extends FlowItem {
     protected string $category = Category::MATH;
 
     protected string $resultName = "result";
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     public function __construct(?string $result = "") {
         $this->resultName = empty($result) ? $this->resultName : $result;

@@ -26,7 +26,6 @@ class GetBlock extends FlowItem implements PositionFlowItem {
     protected array $detailDefaultReplace = ["position", "result"];
 
     protected string $category = Category::WORLD;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $resultName;
 

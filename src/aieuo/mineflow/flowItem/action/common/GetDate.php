@@ -19,7 +19,6 @@ class GetDate extends FlowItem {
     protected array $detailDefaultReplace = ["format", "result"];
 
     protected string $category = Category::COMMON;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     public function __construct(
         private string $format = "H:i:s",

@@ -21,7 +21,6 @@ class StringLength extends FlowItem {
     protected array $detailDefaultReplace = ["string", "result"];
 
     protected string $category = Category::STRING;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     private string $value;
     private string $resultName;

@@ -25,7 +25,6 @@ class CreatePositionVariable extends FlowItem {
     protected array $detailDefaultReplace = ["position", "x", "y", "z", "world"];
 
     protected string $category = Category::WORLD;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $variableName;
     private string $x;

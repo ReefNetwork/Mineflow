@@ -24,7 +24,6 @@ class CreateBlockVariable extends FlowItem {
     protected array $detailDefaultReplace = ["block", "id"];
 
     protected string $category = Category::BLOCK;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     public function __construct(
         private string $blockId = "",

@@ -23,7 +23,6 @@ class CreateScoreboardVariable extends FlowItem {
     protected array $detailDefaultReplace = ["result", "id", "displayName", "type"];
 
     protected string $category = Category::SCOREBOARD;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $variableName;
     private string $boardId;

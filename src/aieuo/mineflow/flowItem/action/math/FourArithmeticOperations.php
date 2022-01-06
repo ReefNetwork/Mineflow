@@ -24,7 +24,6 @@ class FourArithmeticOperations extends FlowItem {
     protected array $detailDefaultReplace = ["value1", "value2", "operator", "result"];
 
     protected string $category = Category::MATH;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     public const ADDITION = 0;
     public const SUBTRACTION = 1;

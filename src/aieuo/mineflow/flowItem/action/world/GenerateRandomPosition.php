@@ -29,7 +29,6 @@ class GenerateRandomPosition extends FlowItem implements PositionFlowItem {
     private string $resultName;
 
     protected string $category = Category::WORLD;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     public function __construct(string $min = "", string $max = "", string $result = "position") {
         $this->setPositionVariableName($min, "pos1");

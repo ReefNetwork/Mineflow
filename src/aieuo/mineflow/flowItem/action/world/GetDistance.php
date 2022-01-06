@@ -24,7 +24,6 @@ class GetDistance extends FlowItem implements PositionFlowItem {
     protected array $detailDefaultReplace = ["pos1", "pos2", "result"];
 
     protected string $category = Category::WORLD;
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
 
     private string $resultName;
 

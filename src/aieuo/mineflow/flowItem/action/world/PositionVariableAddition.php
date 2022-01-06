@@ -27,7 +27,6 @@ class PositionVariableAddition extends FlowItem implements PositionFlowItem {
     protected array $detailDefaultReplace = ["position", "x", "y", "z", "result"];
 
     protected string $category = Category::WORLD;
-    protected string $returnValueType = self::RETURN_VARIABLE_NAME;
 
     private string $x;
     private string $y;

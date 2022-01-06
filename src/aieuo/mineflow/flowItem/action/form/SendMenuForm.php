@@ -33,8 +33,6 @@ class SendMenuForm extends FlowItem implements PlayerFlowItem {
 
     protected string $category = Category::FORM;
 
-    protected string $returnValueType = self::RETURN_VARIABLE_VALUE;
-
     private string $formText;
     private string $resultName;
     private array $options;
