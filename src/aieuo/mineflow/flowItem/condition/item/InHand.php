@@ -1,0 +1,31 @@
+<?php
+
+namespace aieuo\mineflow\flowItem\condition\item;
+
+use aieuo\mineflow\flowItem\FlowItemExecutor;
+
+class InHand extends TypeItem {
+
+    protected string $id = self::IN_HAND;
+
+    protected string $name = "condition.inHand.name";
+    protected string $detail = "condition.inHand.detail";
+
+    public function execute(FlowItemExecutor $source): \Generator {
+        $this->throwIfCannotExecute();
+
+        $item = $this->getItem($source);
+        $player = $this->getOnlinePlayer($source);
+
+        $hand = $player->getInventory()->getItemInHand();
+
+        yield FlowItemExecutor::CONTINUE;
+        return ($hand->getId() === $item->getId()
+            and $hand->getMeta() === $item->getMeta()
+            and $hand->getCount() >= $item->getCount()
+            and (!$item->hasCustomName() or $hand->getName() === $item->getName())
+            and (empty($item->getLore()) or $item->getLore() === $hand->getLore())
+            and (empty($item->getEnchantments()) or $item->getEnchantments() === $hand->getEnchantments())
+        );
+    }
+}
