@@ -9,6 +9,7 @@ use aieuo\mineflow\formAPI\element\Input;
 use aieuo\mineflow\formAPI\element\mineflow\NumberInputPlaceholder;
 use aieuo\mineflow\formAPI\element\Slider;
 use aieuo\mineflow\formAPI\element\mineflow\SliderPlaceholder;
+use aieuo\mineflow\formAPI\element\StringResponseDropdown;
 use aieuo\mineflow\formAPI\element\Toggle;
 use aieuo\mineflow\formAPI\response\CustomFormResponse;
 use aieuo\mineflow\Main;
@@ -209,6 +210,8 @@ class CustomForm extends Form {
         foreach ($this->getContents() as $i => $content) {
             if ($content instanceof Input or $content instanceof Slider or $content instanceof Toggle) {
                 $content->setDefault($overwrites[$i] ?? $data[$i]);
+            } elseif ($content instanceof StringResponseDropdown) {
+                $content->setDefaultString($overwrites[$i] ?? $data[$i]);
             } elseif ($content instanceof Dropdown) {
                 $content->setDefaultIndex($overwrites[$i] ?? $data[$i]);
             }
