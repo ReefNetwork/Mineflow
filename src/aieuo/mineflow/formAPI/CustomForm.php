@@ -16,6 +16,8 @@ use aieuo\mineflow\utils\Language;
 use aieuo\mineflow\variable\ListVariable;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
+use SOFe\AwaitGenerator\Await;
+use function is_callable;
 
 class CustomForm extends Form {
 
@@ -156,8 +158,28 @@ class CustomForm extends Form {
             ->show($this->lastResponse[0]);
     }
 
-    public function handleResponse(Player $player, $data): void {
-        $this->lastResponse = [$player, $data];
+    public function insufficientAwait(int $index): \Generator {
+        return yield from $this->errorAwait([["@form.insufficient", $index]]);
+    }
+
+    public function errorAwait(array $errors = []): \Generator {
+        return yield from $this->resendAwait($errors);
+    }
+
+    public function resendAwait(array $errors = [], array $messages = [], array $responseOverrides = [], array $elementOverrides = []): \Generator {
+        if (empty($this->lastResponse) or !($this->lastResponse[0] instanceof Player) or !$this->lastResponse[0]->isOnline()) return yield Await::REJECT;
+
+        foreach ($elementOverrides as $i => $element) {
+            $this->setContent($element, $i);
+        }
+        return yield from $this->setDefaultsFromResponse($this->lastResponse[1], $responseOverrides)
+            ->resetErrors()
+            ->addMessages($messages)
+            ->addErrors($errors)
+            ->showAwait($this->lastResponse[0]);
+    }
+
+    public function onSubmit(Player $player, $data): void {
         if ($data !== null) {
             $response = new CustomFormResponse($this, $data);
             foreach ($this->getContents() as $i => $content) {
@@ -180,7 +202,7 @@ class CustomForm extends Form {
             }
         }
 
-        parent::handleResponse($player, $data);
+        parent::onSubmit($player, $data);
     }
 
     private function setDefaultsFromResponse(array $data, array $overwrites): self {

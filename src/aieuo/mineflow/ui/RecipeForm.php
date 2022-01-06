@@ -9,7 +9,7 @@ use aieuo\mineflow\formAPI\element\CancelToggle;
 use aieuo\mineflow\formAPI\element\Dropdown;
 use aieuo\mineflow\formAPI\element\Input;
 use aieuo\mineflow\formAPI\element\Label;
-use aieuo\mineflow\formAPI\element\Toggle;
+use aieuo\mineflow\formAPI\element\NumberInput;
 use aieuo\mineflow\formAPI\ListForm;
 use aieuo\mineflow\formAPI\ModalForm;
 use aieuo\mineflow\Main;
@@ -18,7 +18,12 @@ use aieuo\mineflow\trigger\Trigger;
 use aieuo\mineflow\ui\trigger\BaseTriggerForm;
 use aieuo\mineflow\utils\Language;
 use aieuo\mineflow\utils\Session;
+use aieuo\mineflow\utils\Utils;
 use pocketmine\player\Player;
+use SOFe\AwaitGenerator\Await;
+use function count;
+use function explode;
+use function implode;
 
 class RecipeForm {
 
@@ -39,55 +44,55 @@ class RecipeForm {
     }
 
     public function sendAddRecipe(Player $player, array $default = []): void {
-        $manager = Main::getRecipeManager();
-        $name = $manager->getNotDuplicatedName("recipe");
+        Await::f2c(function () use ($player, $default) {
+            $manager = Main::getRecipeManager();
+            $defaultName = $manager->getNotDuplicatedName("recipe");
 
-        ($it = new CustomForm("@form.recipe.addRecipe.title"))->setContents([
-                new Input("@form.recipe.recipeName", $name, $default[0] ?? ""),
-                new Input("@form.recipe.groupName", "", $default[1] ?? ""),
+            $form = new CustomForm("@form.recipe.addRecipe.title");
+            $form->setContents([
+                new Input("@form.recipe.recipeName", $defaultName, $default[0] ?? "", result: $name),
+                new Input("@form.recipe.groupName", default: $default[1] ?? "", result: $group),
                 new CancelToggle(fn() => $this->sendMenu($player)),
-            ])->onReceive(function (Player $player, array $data, string $defaultName) use($it) {
-                $manager = Main::getRecipeManager();
-                $name = $data[0] === "" ? $defaultName : $data[0];
-                $group = $data[1];
+            ]);
 
-                $errors = [];
-                if (!Utils::isValidFileName($name)) $errors[] = ["@form.recipe.invalidName", 0];
-                if (!Utils::isValidFileName($group)) $errors[] = ["@form.recipe.invalidName", 1];
-                if (!empty($errors)) {
-                    $it->resend($errors);
-                    return;
+            yield $form->showAwait($player);
+
+            $name = $name === "" ? $defaultName : $name;
+
+            while (true) {
+                if (!Utils::isValidFileName($name)) {
+                    yield $form->errorAwait([["@form.recipe.invalidName", 0]]);
+                    continue;
+                }
+                if (!Utils::isValidFileName($group)) {
+                    yield $form->errorAwait([["@form.recipe.invalidName", 1]]);
+                    continue;
                 }
 
                 if ($manager->exists($name, $group)) {
-                    $newName = $manager->getNotDuplicatedName($name, $group);
-                    (new MineflowForm)->confirmRename($player, $name, $newName,
-                        function (string $name) use ($player, $data) {
-                            $manager = Main::getRecipeManager();
-                            $recipe = new Recipe($name, $data[1], $player->getName(), Main::getPluginVersion());
-                            $manager->add($recipe);
-                            Session::getSession($player)->set("recipe_menu_prev", function() use($player, $recipe) {
-                                $this->sendRecipeList($player, $recipe->getGroup());
-                            });
-                            $this->sendRecipeMenu($player, $recipe);
-                        },
-                        fn(string $name) => $it->resend([[Language::get("form.recipe.exists", [$name]), 0]])
-                    );
-                    return;
+                    $nonDuplicateName = $manager->getNotDuplicatedName($name, $group);
+
+                    $renameForm = new ModalForm("@form.home.rename.title");
+                    $renameForm->setContent(Language::get("form.home.rename.content", [$name, $nonDuplicateName]));
+                    if (yield $renameForm->showAwait($player)) {
+                        $name = $nonDuplicateName;
+                    }
                 }
 
                 $recipe = new Recipe($name, $group, $player->getName(), Main::getPluginVersion());
                 if (file_exists($recipe->getFileName($manager->getSaveDir()))) {
-                    $it->resend([[Language::get("form.recipe.exists", [$name]), 0]]);
-                    return;
+                    yield $form->errorAwait([[Language::get("form.recipe.exists", [$name]), 0]]);
+                    continue;
                 }
+                break;
+            }
 
-                $manager->add($recipe);
-                Session::getSession($player)->set("recipe_menu_prev", function() use($player, $recipe) {
-                    $this->sendRecipeList($player, $recipe->getGroup());
-                });
-                $this->sendRecipeMenu($player, $recipe);
-            })->addArgs($name)->show($player);
+            $manager->add($recipe);
+            Session::getSession($player)->set("recipe_menu_prev", function () use ($player, $recipe) {
+                $this->sendRecipeList($player, $recipe->getGroup());
+            });
+            $this->sendRecipeMenu($player, $recipe);
+        });
     }
 
     public function sendSelectRecipe(Player $player, array $default = []): void {
@@ -252,28 +257,37 @@ class RecipeForm {
     }
 
     public function sendChangeName(Player $player, Recipe $recipe): void {
-        $form = new CustomForm(Language::get("form.recipe.changeName.title", [$recipe->getName()]));
-        $form->setContents([
-                new Label("@form.recipe.changeName.content0"),
-                new Input("@form.recipe.changeName.content1", "", $recipe->getName(), true),
+        Await::f2c(function () use($player, $recipe) {
+            $manager = Main::getRecipeManager();
+            $form = new CustomForm(Language::get("form.recipe.changeName.title", [$recipe->getName()]));
+            $form->setContents([
+                new Label("@form.recipe.changeName.description"),
+                new Input("@form.recipe.changeName.newName", default: $recipe->getName(), required: true, result: $newName),
                 new CancelToggle(fn() => $this->sendRecipeMenu($player, $recipe, ["@form.cancelled"]))
-            ])->onReceive(function (Player $player, array $data, Recipe $recipe) use($form) {
-                $manager = Main::getRecipeManager();
-                if ($manager->exists($data[1], $recipe->getGroup())) {
-                    $newName = $manager->getNotDuplicatedName($data[1], $recipe->getGroup());
-                    (new MineflowForm)->confirmRename($player, $data[1], $newName,
-                        function (string $name) use ($player, $recipe) {
-                            $manager = Main::getRecipeManager();
-                            $manager->rename($recipe->getName(), $name, $recipe->getGroup());
-                            $this->sendRecipeMenu($player, $recipe);
-                        },
-                        fn(string $name) => $form->resend([[Language::get("form.recipe.exists", [$name]), 1]])
-                    );
-                    return;
+            ]);
+
+            yield $form->showAwait($player);
+
+            while (true) {
+                if ($manager->exists($newName, $recipe->getGroup())) {
+                    $nonDuplicateName = $manager->getNotDuplicatedName($newName, $recipe->getGroup());
+
+                    $confirmRenameForm = new ModalForm("@form.home.rename.title");
+                    $confirmRenameForm->setContent(Language::get("form.home.rename.content", [$newName, $nonDuplicateName]));
+                    $result = yield $confirmRenameForm->showAwait($player);
+                    if (!$result) {
+                        yield $form->errorAwait([[Language::get("form.recipe.exists", [$newName]), 1]]);
+                        continue;
+                    }
+
+                    $newName = $nonDuplicateName;
                 }
-                $manager->rename($recipe->getName(), $data[1], $recipe->getGroup());
-                $this->sendRecipeMenu($player, $recipe, ["@form.recipe.changeName.success"]);
-            })->addArgs($recipe)->show($player);
+                break;
+            }
+
+            $manager->rename($recipe->getName(), $newName, $recipe->getGroup());
+            $this->sendRecipeMenu($player, $recipe, ["@form.recipe.changeName.success"]);
+        });
     }
 
     public function sendTriggerList(Player $player, Recipe $recipe, array $messages = []): void {
@@ -287,98 +301,94 @@ class RecipeForm {
     }
 
     public function sendSetArgs(Player $player, Recipe $recipe, array $messages = []): void {
-        $contents = [new Toggle("@form.exit")];
-        foreach ($recipe->getArguments() as $i => $argument) {
-            $contents[] = new Input(Language::get("form.recipe.args", [$i]), "", $argument);
-        }
-        $contents[] = new Input("@form.recipe.args.add");
-        (new CustomForm("@form.recipe.args.set"))
-            ->setContents($contents)
-            ->onReceive(function (Player $player, array $data) use($recipe) {
-                if ($data[0]) {
-                    $this->sendRecipeMenu($player, $recipe);
-                    return;
-                }
+        Await::f2c(function () use($player, $recipe, $messages) {
+            $form = new CustomForm("@form.recipe.args.set");
+            $form->addContent(new CancelToggle(fn() => $this->sendRecipeMenu($player, $recipe), "@form.exit"));
 
-                $arguments = [];
-                for ($i = 1, $iMax = count($data); $i < $iMax; $i++) {
-                    if ($data[$i] !== "") $arguments[] = $data[$i];
-                }
-                $recipe->setArguments($arguments);
-                $this->sendSetArgs($player, $recipe, ["@form.changed"]);
-            })->onClose(fn() => $this->sendRecipeMenu($player, $recipe))
-            ->addMessages($messages)
-            ->show($player);
+            foreach ($recipe->getArguments() as $i => $argument) {
+                $form->addContent(new Input(Language::get("form.recipe.args", [$i]), default: $argument));
+            }
+            $form->addContent(new Input("@form.recipe.args.add"));
+
+            $form->addMessages($messages);
+            $data = yield $form->showAwait($player);
+
+            $arguments = [];
+            for ($i = 1, $iMax = count($data); $i < $iMax; $i++) {
+                if ($data[$i] !== "") $arguments[] = $data[$i];
+            }
+            $recipe->setArguments($arguments);
+            $this->sendSetArgs($player, $recipe, ["@form.changed"]);
+        });
     }
 
     public function sendSetReturns(Player $player, Recipe $recipe, array $messages = []): void {
-        $contents = [new Toggle("@form.exit")];
-        foreach ($recipe->getReturnValues() as $i => $value) {
-            $contents[] = new Input(Language::get("form.recipe.returnValue", [$i]), "", $value);
-        }
-        $contents[] = new Input("@form.recipe.returnValue.add");
-        (new CustomForm("@form.recipe.returnValue.set"))
-            ->setContents($contents)
-            ->onReceive(function (Player $player, array $data) use($recipe) {
-                if ($data[0]) {
-                    $this->sendRecipeMenu($player, $recipe);
-                    return;
-                }
+        Await::f2c(function () use($player, $recipe, $messages) {
+            $form = new CustomForm("@form.recipe.returnValue.set");
+            $form->addContent(new CancelToggle(fn() => $this->sendRecipeMenu($player, $recipe), "@form.exit"));
 
-                $returnValues = [];
-                for ($i = 1, $iMax = count($data); $i < $iMax; $i++) {
-                    if ($data[$i] !== "") $returnValues[] = $data[$i];
-                }
-                $recipe->setReturnValues($returnValues);
-                $this->sendSetReturns($player, $recipe, ["@form.changed"]);
-            })->onClose(fn() => $this->sendRecipeMenu($player, $recipe))
-            ->addMessages($messages)
-            ->show($player);
+            foreach ($recipe->getReturnValues() as $i => $value) {
+                $form->addContent(new Input(Language::get("form.recipe.returnValue", [$i]), default: $value));
+            }
+            $form->addContent(new Input("@form.recipe.returnValue.add"));
+
+            $form->addMessages($messages);
+            $data = yield $form->showAwait($player);
+
+            $returnValues = [];
+            for ($i = 1, $iMax = count($data); $i < $iMax; $i++) {
+                if ($data[$i] !== "") $returnValues[] = $data[$i];
+            }
+            $recipe->setReturnValues($returnValues);
+            $this->sendSetReturns($player, $recipe, ["@form.changed"]);
+        });
     }
 
-    public function sendChangeTarget(Player $player, Recipe $recipe, array $default = [], array $errors = []): void {
-        $default1 = $default[1] ?? ($recipe->getTargetType() === Recipe::TARGET_SPECIFIED ? implode(",", $recipe->getTargetOptions()["specified"]) : "");
-        $default2 = $default[2] ?? ($recipe->getTargetType() === Recipe::TARGET_RANDOM ? (string)$recipe->getTargetOptions()["random"] : "");
-        (new CustomForm(Language::get("form.recipe.changeTarget.title", [$recipe->getName()])))->setContents([
-            new Dropdown("@form.recipe.changeTarget.type", [
-                Language::get("form.recipe.target.none"),
-                Language::get("form.recipe.target.default"),
-                Language::get("form.recipe.target.specified"),
-                Language::get("form.recipe.target.onWorld"),
-                Language::get("form.recipe.target.all"),
-                Language::get("form.recipe.target.random"),
-            ], $default[0] ?? $recipe->getTargetType()),
-            new Input("@form.recipe.changeTarget.name", "@form.recipe.changeTarget.name.placeholder", $default1),
-            new Input("@form.recipe.changeTarget.random", "@form.recipe.changeTarget.random.placeholder", $default2),
-            new CancelToggle()
-        ])->onReceive(function (Player $player, array $data, Recipe $recipe) {
-            if ($data[3]) {
-                $this->sendRecipeMenu($player, $recipe, ["@form.cancelled"]);
-                return;
+    public function sendChangeTarget(Player $player, Recipe $recipe): void {
+        Await::f2c(function () use($player, $recipe) {
+            $default1 = $default[1] ?? ($recipe->getTargetType() === Recipe::TARGET_SPECIFIED ? implode(",", $recipe->getTargetOptions()["specified"]) : "");
+            $default2 = $default[2] ?? ($recipe->getTargetType() === Recipe::TARGET_RANDOM ? (string)$recipe->getTargetOptions()["random"] : "");
+            $form = new CustomForm(Language::get("form.recipe.changeTarget.title", [$recipe->getName()]));
+            $form->setContents([
+                new Dropdown("@form.recipe.changeTarget.type", [
+                    Language::get("form.recipe.target.none"),
+                    Language::get("form.recipe.target.default"),
+                    Language::get("form.recipe.target.specified"),
+                    Language::get("form.recipe.target.onWorld"),
+                    Language::get("form.recipe.target.all"),
+                    Language::get("form.recipe.target.random"),
+                ], $default[0] ?? $recipe->getTargetType(), result: $targetType),
+                new Input("@form.recipe.changeTarget.name", "@form.recipe.changeTarget.name.placeholder", $default1, result: $targetPlayers),
+                new NumberInput("@form.recipe.changeTarget.random", "@form.recipe.changeTarget.random.placeholder", $default2, min: 1, result: $randomNumber),
+                new CancelToggle(fn() => $this->sendRecipeMenu($player, $recipe, ["@form.cancelled"]))
+            ]);
+            $data = yield $form->showAwait($player);
+
+            while (true) {
+                if ($targetType === Recipe::TARGET_SPECIFIED and $targetPlayers === "") {
+                    yield $form->insufficientAwait(1);
+                    continue;
+                }
+                if ($targetType === Recipe::TARGET_RANDOM and $data[2] === "") {
+                    yield $form->insufficientAwait(2);
+                    continue;
+                }
+                break;
             }
 
-            if ($data[0] === Recipe::TARGET_SPECIFIED and $data[1] === "") {
-                $this->sendChangeTarget($player, $recipe, $data, [["@form.insufficient", 1]]);
-                return;
-            }
-            if ($data[0] === Recipe::TARGET_RANDOM and $data[2] === "") {
-                $this->sendChangeTarget($player, $recipe, $data, [["@form.insufficient", 2]]);
-                return;
-            }
-
-            switch ($data[0]) {
+            switch ($targetType) {
                 case Recipe::TARGET_SPECIFIED:
-                    $recipe->setTargetSetting((int)$data[0], ["specified" => explode(",", $data[1])]);
+                    $recipe->setTargetSetting((int)$targetType, ["specified" => explode(",", $targetPlayers)]);
                     break;
                 case Recipe::TARGET_RANDOM:
-                    $recipe->setTargetSetting((int)$data[0], ["random" => empty($data[2]) ? 1 : (int)$data[2]]);
+                    $recipe->setTargetSetting((int)$targetType, ["random" => empty($randomNumber) ? 1 : (int)$randomNumber]);
                     break;
                 default:
-                    $recipe->setTargetSetting((int)$data[0]);
+                    $recipe->setTargetSetting((int)$targetType);
                     break;
             }
             $this->sendRecipeMenu($player, $recipe, ["@form.changed"]);
-        })->addArgs($recipe)->addErrors($errors)->show($player);
+        });
     }
 
     public function confirmDeleteRecipeGroup(Player $player, string $path): void {

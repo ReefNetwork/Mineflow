@@ -2,18 +2,23 @@
 
 namespace aieuo\mineflow\formAPI\element;
 
+use aieuo\mineflow\formAPI\response\CustomFormResponse;
 use aieuo\mineflow\utils\Language;
+use pocketmine\player\Player;
 
 class Dropdown extends Element {
     protected string $type = self::ELEMENT_DROPDOWN;
 
-    protected array $options = [];
-    protected int $default = 0;
+    private ?int $assign;
 
-    public function __construct(string $text, array $options = [], int $default = 0) {
+    public function __construct(
+        string          $text,
+        protected array $options = [],
+        protected int   $default = 0,
+        int             &$result = null
+    ) {
         parent::__construct($text);
-        $this->options = $options;
-        $this->default = $default;
+        $this->assign = &$assign;
     }
 
     public function addOption(string $option): self {
@@ -37,6 +42,11 @@ class Dropdown extends Element {
 
     public function getDefault(): int {
         return $this->default;
+    }
+
+    public function onFormSubmit(CustomFormResponse $response, Player $player): void {
+        parent::onFormSubmit($response, $player);
+        $this->assign = $response->getDropdownResponse();
     }
 
     public function jsonSerialize(): array {
