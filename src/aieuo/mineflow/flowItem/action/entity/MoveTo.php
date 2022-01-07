@@ -27,7 +27,6 @@ class MoveTo extends FlowItem implements EntityFlowItem, PositionFlowItem {
     protected array $detailDefaultReplace = ["entity", "position", "speedX", "speedY", "speedZ"];
 
     protected string $category = Category::ENTITY;
-    protected int $permission = self::PERMISSION_LEVEL_1;
 
     private string $speedX;
     private string $speedY;
@@ -39,6 +38,10 @@ class MoveTo extends FlowItem implements EntityFlowItem, PositionFlowItem {
         $this->setSpeedX($x);
         $this->setSpeedY($y);
         $this->setSpeedZ($z);
+    }
+
+    public function getPermissions(): array {
+        return [self::PERMISSION_LOOP];
     }
 
     public function getDetail(): string {

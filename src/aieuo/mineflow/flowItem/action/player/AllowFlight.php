@@ -24,13 +24,15 @@ class AllowFlight extends FlowItem implements PlayerFlowItem {
 
     protected string $category = Category::PLAYER;
 
-    protected int $permission = self::PERMISSION_LEVEL_1;
-
     private bool $allow;
 
     public function __construct(string $player = "", string $allow = "true") {
         $this->setPlayerVariableName($player);
         $this->allow = $allow === "true";
+    }
+
+    public function getPermissions(): array {
+        return [self::PERMISSION_CHEAT];
     }
 
     public function setAllow(bool $allow): void {

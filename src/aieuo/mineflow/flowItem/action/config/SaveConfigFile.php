@@ -23,18 +23,20 @@ class SaveConfigFile extends FlowItem implements ConfigFileFlowItem {
 
     protected string $category = Category::CONFIG;
 
-    protected int $permission = self::PERMISSION_LEVEL_2;
-
     public function __construct(string $config = "") {
         $this->setConfigVariableName($config);
     }
 
-    public function isDataValid(): bool {
-        return $this->getConfigVariableName() !== "";
+    public function getPermissions(): array {
+        return [self::PERMISSION_CONFIG];
     }
 
     public function getDetail(): string {
         return Language::get($this->detail, [$this->getConfigVariableName()]);
+    }
+
+    public function isDataValid(): bool {
+        return $this->getConfigVariableName() !== "";
     }
 
     public function execute(FlowItemExecutor $source): \Generator {
