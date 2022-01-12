@@ -53,7 +53,7 @@ class EntityObjectVariable extends PositionObjectVariable {
                 return new NumberVariable($entity->getHorizontalFacing());
             case "onGround":
                 return new BooleanVariable($entity->isOnGround());
-            case "aabb":
+            case "bounding_box":
                 return new AxisAlignedBBObjectVariable($entity->getBoundingBox());
             default:
                 return parent::getProperty($name);
@@ -79,7 +79,7 @@ class EntityObjectVariable extends PositionObjectVariable {
             "pitch" => new DummyVariable(NumberVariable::class),
             "direction" => new DummyVariable(NumberVariable::class),
             "onGround" => new DummyVariable(BooleanVariable::class),
-            "aabb" => new DummyVariable(AxisAlignedBBObjectVariable::class),
+            "bounding_box" => new DummyVariable(AxisAlignedBBObjectVariable::class),
         ]);
     }
 
