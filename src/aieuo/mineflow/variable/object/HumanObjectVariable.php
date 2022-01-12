@@ -7,16 +7,13 @@ use aieuo\mineflow\variable\NumberVariable;
 use aieuo\mineflow\variable\Variable;
 use pocketmine\entity\Human;
 
-class HumanObjectVariable extends EntityObjectVariable {
+class HumanObjectVariable extends LivingObjectVariable {
 
     public function __construct(Human $value, ?string $str = null) {
         parent::__construct($value, $str ?? $value->getName());
     }
 
     public function getProperty(string $name): ?Variable {
-        $variable = parent::getProperty($name);
-        if ($variable !== null) return $variable;
-
         $human = $this->getHuman();
         return match ($name) {
             "hand" => new ItemObjectVariable($human->getInventory()->getItemInHand()),
@@ -24,7 +21,8 @@ class HumanObjectVariable extends EntityObjectVariable {
             "xp" => new NumberVariable($human->getXpManager()->getCurrentTotalXp()),
             "xp_level" => new NumberVariable($human->getXpManager()->getXpLevel()),
             "xp_progress" => new NumberVariable($human->getXpManager()->getXpProgress()),
-            default => null,
+            "inventory" => new InventoryObjectVariable($human->getInventory()),
+            default => parent::getProperty($name),
         };
     }
 
@@ -41,6 +39,10 @@ class HumanObjectVariable extends EntityObjectVariable {
         return array_merge(parent::getValuesDummy(), [
             "hand" => new DummyVariable(ItemObjectVariable::class),
             "food" => new DummyVariable(NumberVariable::class),
+            "xp" => new DummyVariable(NumberVariable::class),
+            "xp_level" => new DummyVariable(NumberVariable::class),
+            "xp_progress" => new DummyVariable(NumberVariable::class),
+            "inventory" => new DummyVariable(InventoryObjectVariable::class),
         ]);
     }
 }

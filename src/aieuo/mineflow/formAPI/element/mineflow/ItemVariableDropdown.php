@@ -21,6 +21,8 @@ class ItemVariableDropdown extends VariableDropdown {
      * @param bool $optional
      */
     public function __construct(array $variables = [], string $default = "", ?string $text = null, bool $optional = false) {
-        parent::__construct($text ?? "@action.form.target.item", $variables, [ItemObjectVariable::class], $default, $optional);
+        parent::__construct($text ?? "@action.form.target.item", $variables, [
+            ItemObjectVariable::class,
+        ], $default, $optional);
     }
 }

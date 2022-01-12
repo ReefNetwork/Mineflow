@@ -4,13 +4,11 @@ namespace aieuo\mineflow\variable;
 
 use aieuo\mineflow\variable\object\BlockObjectVariable;
 use aieuo\mineflow\variable\object\EntityObjectVariable;
-use aieuo\mineflow\variable\object\HumanObjectVariable;
 use aieuo\mineflow\variable\object\PlayerObjectVariable;
 use aieuo\mineflow\variable\object\ServerObjectVariable;
 use pocketmine\block\BaseSign;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
-use pocketmine\entity\Human;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
@@ -32,14 +30,7 @@ class DefaultVariables {
     }
 
     public static function getEntityVariables(Entity $target, string $name = "target"): array {
-        if ($target instanceof Player) return self::getPlayerVariables($target, $name);
-        if ($target instanceof Human) return self::getHumanVariables($target, $name);
-        return [$name => new EntityObjectVariable($target, $target->getNameTag())];
-    }
-
-    public static function getHumanVariables(Human $target, string $name = "target"): array {
-        if ($target instanceof Player) return self::getPlayerVariables($target, $name);
-        return [$name => new HumanObjectVariable($target, $target->getName())];
+        return [$name => EntityObjectVariable::fromObject($target)];
     }
 
     public static function getPlayerVariables(Player $target, string $name = "target"): array {

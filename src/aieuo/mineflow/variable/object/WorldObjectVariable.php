@@ -10,10 +10,13 @@ use aieuo\mineflow\variable\NumberVariable;
 use aieuo\mineflow\variable\ObjectVariable;
 use aieuo\mineflow\variable\StringVariable;
 use aieuo\mineflow\variable\Variable;
+use pocketmine\entity\Entity;
 use pocketmine\entity\Human;
 use pocketmine\entity\Living;
 use pocketmine\world\World;
 use pocketmine\player\Player;
+use function array_filter;
+use function array_map;
 
 class WorldObjectVariable extends ObjectVariable {
 
@@ -23,46 +26,20 @@ class WorldObjectVariable extends ObjectVariable {
 
     public function getProperty(string $name): ?Variable {
         $level = $this->getWorld();
-        switch ($name) {
-            case "name":
-                return new StringVariable($level->getDisplayName());
-            case "folderName":
-                return new StringVariable($level->getFolderName());
-            case "id":
-                return new NumberVariable($level->getId());
-            case "players":
-                return new ListVariable(array_values(array_map(fn(Player $player) => new PlayerObjectVariable($player), $level->getPlayers())));
-            case "entities":
-                $entities = [];
-                foreach ($level->getEntities() as $entity) {
-                    if ($entity instanceof Player) {
-                        $v = new PlayerObjectVariable($entity);
-                    } elseif ($entity instanceof Human) {
-                        $v = new HumanObjectVariable($entity);
-                    } else {
-                        $v = new EntityObjectVariable($entity);
-                    }
-                    $entities[] = $v;
-                }
-                return new ListVariable($entities);
-            case "livings":
-                $entities = [];
-                foreach ($level->getEntities() as $entity) {
-                    if ($entity instanceof Player) {
-                        $v = new PlayerObjectVariable($entity);
-                    } elseif ($entity instanceof Human) {
-                        $v = new HumanObjectVariable($entity);
-                    } elseif ($entity instanceof Living) {
-                        $v = new EntityObjectVariable($entity);
-                    } else {
-                        continue;
-                    }
-                    $entities[] = $v;
-                }
-                return new ListVariable($entities);
-            default:
-                return null;
-        }
+        return match ($name) {
+            "name" => new StringVariable($level->getDisplayName()),
+            "folderName" => new StringVariable($level->getFolderName()),
+            "id" => new NumberVariable($level->getId()),
+            "spawn" => new PositionObjectVariable($level->getSpawnLocation()),
+            "safe_spawn" => new PositionObjectVariable($level->getSafeSpawn()),
+            "time" => new NumberVariable($level->getTime()),
+            "players" => new ListVariable(array_values(array_map(fn(Player $player) => new PlayerObjectVariable($player), $level->getPlayers()))),
+            "entities" => new ListVariable(array_values(array_map(fn(Entity $entity) => EntityObjectVariable::fromObject($entity), $level->getEntities()))),
+            "livings" => new ListVariable(array_values(array_map(fn(Living $living) => EntityObjectVariable::fromObject($living),
+                array_filter($level->getEntities(), fn(Entity $entity) => $entity instanceof Living)
+            ))),
+            default => null,
+        };
     }
 
     /** @noinspection PhpIncompatibleReturnTypeInspection */
@@ -79,6 +56,12 @@ class WorldObjectVariable extends ObjectVariable {
             "name" => new DummyVariable(StringVariable::class),
             "folderName" => new DummyVariable(StringVariable::class),
             "id" => new DummyVariable(NumberVariable::class),
+            "spawn" => new DummyVariable(PositionObjectVariable::class),
+            "safe_spawn" => new DummyVariable(PositionObjectVariable::class),
+            "time" => new DummyVariable(NumberVariable::class),
+            "player" => new DummyVariable(ListVariable::class, PlayerObjectVariable::getTypeName()),
+            "entities" => new DummyVariable(ListVariable::class, EntityObjectVariable::getTypeName()),
+            "livings" => new DummyVariable(ListVariable::class, LivingObjectVariable::getTypeName()),
         ];
     }
 }

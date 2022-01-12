@@ -22,6 +22,12 @@ class Vector3ObjectVariable extends ObjectVariable {
             "y" => new NumberVariable($position->y),
             "z" => new NumberVariable($position->z),
             "xyz" => new StringVariable($position->x.",".$position->y.",".$position->z),
+            "down" => new Vector3ObjectVariable($position->down(1)),
+            "up" => new Vector3ObjectVariable($position->up(1)),
+            "north" => new Vector3ObjectVariable($position->north(1)),
+            "south" => new Vector3ObjectVariable($position->south(1)),
+            "west" => new Vector3ObjectVariable($position->west(1)),
+            "east" => new Vector3ObjectVariable($position->east(1)),
             default => null,
         };
     }
@@ -41,6 +47,12 @@ class Vector3ObjectVariable extends ObjectVariable {
             "y" => new DummyVariable(NumberVariable::class),
             "z" => new DummyVariable(NumberVariable::class),
             "xyz" => new DummyVariable(StringVariable::class),
+            "down" => new DummyVariable(Vector3ObjectVariable::class),
+            "up" => new DummyVariable(Vector3ObjectVariable::class),
+            "north" => new DummyVariable(Vector3ObjectVariable::class),
+            "south" => new DummyVariable(Vector3ObjectVariable::class),
+            "west" => new DummyVariable(Vector3ObjectVariable::class),
+            "east" => new DummyVariable(Vector3ObjectVariable::class),
         ];
     }
 

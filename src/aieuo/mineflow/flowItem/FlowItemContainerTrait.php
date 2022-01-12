@@ -23,6 +23,8 @@ trait FlowItemContainerTrait {
     }
 
     public function pushItem(int $index, FlowItem $action, string $name): void {
+        if (!isset($this->items[$name])) $this->items[$name] = [];
+
         array_splice($this->items[$name], $index, 0, [$action]);
     }
 
@@ -31,6 +33,8 @@ trait FlowItemContainerTrait {
     }
 
     public function removeItem(int $index, string $name): void {
+        if (!isset($this->items[$name])) return;
+
         unset($this->items[$name][$index]);
         $this->items[$name] = array_merge($this->items[$name]);
     }

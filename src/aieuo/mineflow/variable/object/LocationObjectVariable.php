@@ -16,14 +16,17 @@ class LocationObjectVariable extends PositionObjectVariable {
     }
 
     public function getProperty(string $name): ?Variable {
-        $variable = parent::getProperty($name);
-        if ($variable !== null) return $variable;
-
         $location = $this->getLocation();
         return match ($name) {
             "yaw" => new NumberVariable($location->yaw),
             "pitch" => new NumberVariable($location->pitch),
-            default => null,
+            "down" => new LocationObjectVariable(Location::fromObject($location->down(1), $location->world, $location->yaw, $location->pitch)),
+            "up" => new LocationObjectVariable(Location::fromObject($location->up(1), $location->world, $location->yaw, $location->pitch)),
+            "north" => new LocationObjectVariable(Location::fromObject($location->north(1), $location->world, $location->yaw, $location->pitch)),
+            "south" => new LocationObjectVariable(Location::fromObject($location->south(1), $location->world, $location->yaw, $location->pitch)),
+            "west" => new LocationObjectVariable(Location::fromObject($location->west(1), $location->world, $location->yaw, $location->pitch)),
+            "east" => new LocationObjectVariable(Location::fromObject($location->east(1), $location->world, $location->yaw, $location->pitch)),
+            default => parent::getProperty($name),
         };
     }
 
@@ -40,6 +43,12 @@ class LocationObjectVariable extends PositionObjectVariable {
         return array_merge(parent::getValuesDummy(), [
             "yaw" => new DummyVariable(NumberVariable::class),
             "pitch" => new DummyVariable(NumberVariable::class),
+            "down" => new DummyVariable(LocationObjectVariable::class),
+            "up" => new DummyVariable(LocationObjectVariable::class),
+            "north" => new DummyVariable(LocationObjectVariable::class),
+            "south" => new DummyVariable(LocationObjectVariable::class),
+            "west" => new DummyVariable(LocationObjectVariable::class),
+            "east" => new DummyVariable(LocationObjectVariable::class),
         ]);
     }
 

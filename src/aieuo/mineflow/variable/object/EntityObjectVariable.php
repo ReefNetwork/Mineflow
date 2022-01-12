@@ -9,17 +9,26 @@ use aieuo\mineflow\variable\StringVariable;
 use aieuo\mineflow\variable\Variable;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityFactory;
+use pocketmine\entity\Human;
+use pocketmine\entity\Living;
+use pocketmine\player\Player;
 
 class EntityObjectVariable extends PositionObjectVariable {
+
+    public static function fromObject(Entity $entity, ?string $str = null): EntityObjectVariable|LivingObjectVariable|HumanObjectVariable|PlayerObjectVariable {
+        return match (true) {
+            $entity instanceof Player => new PlayerObjectVariable($entity, $str ?? $entity->getName()),
+            $entity instanceof Human => new HumanObjectVariable($entity, $str ?? $entity->getNameTag()),
+            $entity instanceof Living => new LivingObjectVariable($entity, $str ?? $entity->getNameTag()),
+            default => new EntityObjectVariable($entity, $str ?? $entity->getNameTag()),
+        };
+    }
 
     public function __construct(private Entity $entity, ?string $str = null) {
         parent::__construct($this->entity->getPosition(), $str);
     }
 
     public function getProperty(string $name): ?Variable {
-        $variable = parent::getProperty($name);
-        if ($variable !== null) return $variable;
-
         $entity = $this->getEntity();
         switch ($name) {
             case "id":
@@ -44,8 +53,10 @@ class EntityObjectVariable extends PositionObjectVariable {
                 return new NumberVariable($entity->getHorizontalFacing());
             case "onGround":
                 return new BooleanVariable($entity->isOnGround());
+            case "aabb":
+                return new AxisAlignedBBObjectVariable($entity->getBoundingBox());
             default:
-                return null;
+                return parent::getProperty($name);
         }
     }
 
@@ -56,7 +67,7 @@ class EntityObjectVariable extends PositionObjectVariable {
     public static function getTypeName(): string {
         return "entity";
     }
-
+    
     public static function getValuesDummy(): array {
         return array_merge(parent::getValuesDummy(), [
             "id" => new DummyVariable(NumberVariable::class),
@@ -67,11 +78,12 @@ class EntityObjectVariable extends PositionObjectVariable {
             "yaw" => new DummyVariable(NumberVariable::class),
             "pitch" => new DummyVariable(NumberVariable::class),
             "direction" => new DummyVariable(NumberVariable::class),
+            "onGround" => new DummyVariable(BooleanVariable::class),
+            "aabb" => new DummyVariable(AxisAlignedBBObjectVariable::class),
         ]);
     }
 
     public function __toString(): string {
-        $value = $this->getEntity();
-        return $value->getNameTag();
+        return $this->getEntity()->getNameTag();
     }
 }

@@ -398,9 +398,9 @@ class VariableHelper {
     }
 
     public function currentType(string $value) {
-        if (mb_strpos($value, "(str)") === 0) {
+        if (str_starts_with($value, "(str)")) {
             $newValue = mb_substr($value, 5);
-        } elseif (mb_strpos($value, "(num)") === 0) {
+        } elseif (str_starts_with($value, "(num)")) {
             $newValue = mb_substr($value, 5);
             if (!$this->containsVariable($value)) $newValue = (float)$value;
         } elseif (is_numeric($value)) {

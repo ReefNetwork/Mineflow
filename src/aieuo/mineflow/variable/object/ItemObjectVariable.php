@@ -20,10 +20,13 @@ class ItemObjectVariable extends ObjectVariable {
         $item = $this->getItem();
         return match ($name) {
             "name" => new StringVariable($item->getName()),
+            "vanilla_name" => new StringVariable($item->getVanillaName()),
+            "custom_name" => new StringVariable($item->getCustomName()),
             "id" => new NumberVariable($item->getId()),
-            "damage" => new NumberVariable($item->getMeta()),
+            "damage", "meta" => new NumberVariable($item->getMeta()),
             "count" => new NumberVariable($item->getCount()),
             "lore" => new ListVariable(array_map(fn(string $lore) => new StringVariable($lore), $item->getLore())),
+            "block" => new BlockObjectVariable($item->getBlock()),
             default => null,
         };
     }
@@ -44,10 +47,13 @@ class ItemObjectVariable extends ObjectVariable {
     public static function getValuesDummy(): array {
         return [
             "name" => new DummyVariable(StringVariable::class),
+            "vanilla_name" => new DummyVariable(StringVariable::class),
+            "custom_name" => new DummyVariable(StringVariable::class),
             "id" => new DummyVariable(NumberVariable::class),
-            "damage" => new DummyVariable(NumberVariable::class),
+            "damage", "meta" => new DummyVariable(NumberVariable::class),
             "count" => new DummyVariable(NumberVariable::class),
             "lore" => new DummyVariable(ListVariable::class, StringVariable::getTypeName()),
+            "block" => new DummyVariable(BlockObjectVariable::class),
         ];
     }
 

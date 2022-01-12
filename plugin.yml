@@ -3,6 +3,7 @@ main: aieuo\mineflow\Main
 version: 3.0.0
 api: 4.0.0
 mcpe-protocol:
+  - 475
   - 471
   - 465
 load: POSTWORLD

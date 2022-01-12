@@ -27,7 +27,7 @@ class EventObjectVariable extends ObjectVariable {
     public function getProperty(string $name): ?Variable {
         $event = $this->getEvent();
         return match ($name) {
-            "name" => new StringVariable($this->getEventName($this->getEvent())),
+            "name" => new StringVariable($this->getEventName($event)),
             "isCanceled" => new BooleanVariable($event instanceof Cancellable and $event->isCancelled()),
             default => $this->properties[$name] ?? null,
         };

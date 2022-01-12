@@ -21,6 +21,8 @@ class ConfigVariableDropdown extends VariableDropdown {
      * @param bool $optional
      */
     public function __construct(array $variables = [], string $default = "", ?string $text = null, bool $optional = false) {
-        parent::__construct($text ?? "@action.form.target.config", $variables, [ConfigObjectVariable::class], $default, $optional);
+        parent::__construct($text ?? "@action.form.target.config", $variables, [
+            ConfigObjectVariable::class,
+        ], $default, $optional);
     }
 }

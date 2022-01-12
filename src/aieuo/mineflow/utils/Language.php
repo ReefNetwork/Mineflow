@@ -10,6 +10,7 @@ class Language {
     private static array $messages = [
         "jpn" => [],
         "eng" => [],
+        "ind" => [],
     ];
     private static string $language = "eng";
     private static string $fallbackLanguage = "eng";
@@ -52,12 +53,6 @@ class Language {
         self::$messages[$language] = array_merge(self::$messages[$language], $messages);
     }
 
-    /**
-     * @param string $key
-     * @param string[] $replaces
-     * @param string|null $language
-     * @return string
-     */
     public static function get(string $key, array $replaces = [], string $language = null): string {
         $language = $language ?? self::$language;
         if (isset(self::$messages[$language][$key])) {
@@ -93,6 +88,10 @@ class Language {
             default => [
                 "Failed to load language file.",
                 "Available languages are: [".implode(", ", self::getAvailableLanguages())."]"
+            ],
+            "ind" => [
+                "Gagal memuat file bahasa.",
+                "Bahasa yang tersedia adalah: [".implode(", ", self::getAvailableLanguages())."]"
             ],
         };
     }

@@ -6,6 +6,8 @@ use aieuo\mineflow\flowItem\FlowItemIds;
 use aieuo\mineflow\variable\DummyVariable;
 use aieuo\mineflow\variable\object\BlockObjectVariable;
 use aieuo\mineflow\variable\object\EntityObjectVariable;
+use aieuo\mineflow\variable\object\HumanObjectVariable;
+use aieuo\mineflow\variable\object\LivingObjectVariable;
 use aieuo\mineflow\variable\object\LocationObjectVariable;
 use aieuo\mineflow\variable\object\PlayerObjectVariable;
 use aieuo\mineflow\variable\object\PositionObjectVariable;
@@ -26,18 +28,14 @@ class PositionVariableDropdown extends VariableDropdown {
      * @param bool $optional
      */
     public function __construct(array $variables = [], string $default = "", ?string $text = null, bool $optional = false) {
-        parent::__construct(
-            $text ?? "@action.form.target.position",
-            $variables,
-            [
-                PositionObjectVariable::class,
-                LocationObjectVariable::class,
-                PlayerObjectVariable::class,
-                EntityObjectVariable::class,
-                BlockObjectVariable::class
-            ],
-            $default,
-            $optional
-        );
+        parent::__construct($text ?? "@action.form.target.position", $variables, [
+            PositionObjectVariable::class,
+            LocationObjectVariable::class,
+            PlayerObjectVariable::class,
+            HumanObjectVariable::class,
+            LivingObjectVariable::class,
+            EntityObjectVariable::class,
+            BlockObjectVariable::class,
+        ], $default, $optional);
     }
 }

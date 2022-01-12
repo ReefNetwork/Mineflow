@@ -15,14 +15,17 @@ class PositionObjectVariable extends Vector3ObjectVariable {
     }
 
     public function getProperty(string $name): ?Variable {
-        $variable = parent::getProperty($name);
-        if ($variable !== null) return $variable;
-
         $position = $this->getPosition();
         return match ($name) {
             "position" => new PositionObjectVariable($position),
             "world" => new WorldObjectVariable($position->world, $position->world->getFolderName()),
-            default => null,
+            "down" => new PositionObjectVariable(Position::fromObject($position->down(1), $position->world)),
+            "up" => new PositionObjectVariable(Position::fromObject($position->up(1), $position->world)),
+            "north" => new PositionObjectVariable(Position::fromObject($position->north(1), $position->world)),
+            "south" => new PositionObjectVariable(Position::fromObject($position->south(1), $position->world)),
+            "west" => new PositionObjectVariable(Position::fromObject($position->west(1), $position->world)),
+            "east" => new PositionObjectVariable(Position::fromObject($position->east(1), $position->world)),
+            default => parent::getProperty($name),
         };
     }
 
@@ -38,6 +41,12 @@ class PositionObjectVariable extends Vector3ObjectVariable {
     public static function getValuesDummy(): array {
         return array_merge(parent::getValuesDummy(), [
             "world" => new DummyVariable(WorldObjectVariable::class),
+            "down" => new DummyVariable(PositionObjectVariable::class),
+            "up" => new DummyVariable(PositionObjectVariable::class),
+            "north" => new DummyVariable(PositionObjectVariable::class),
+            "south" => new DummyVariable(PositionObjectVariable::class),
+            "west" => new DummyVariable(PositionObjectVariable::class),
+            "east" => new DummyVariable(PositionObjectVariable::class),
         ]);
     }
 
